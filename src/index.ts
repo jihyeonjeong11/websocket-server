@@ -76,6 +76,12 @@ export class WebSocketHibernationServer extends DurableObject {
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
 		// Upon receiving a message from the client, the server replies with the same message,
 		// and the total number of connections with the "[Durable Object]: " prefix
+
+		if (message === 'stock') {
+			// need free api
+			ws.send('fetching stock info');
+		}
+
 		ws.send(`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`);
 	}
 
