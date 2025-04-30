@@ -7,6 +7,20 @@ export interface Env {
 // Worker
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		const corsHeaders = {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
+			'Access-Control-Max-Age': '86400',
+		};
+
+		// Handle CORS preflight request
+		if (request.method === 'OPTIONS') {
+			return new Response(null, {
+				status: 204,
+				headers: corsHeaders,
+			});
+		}
+
 		if (request.url.endsWith('/websocket')) {
 			// Expect to receive a WebSocket Upgrade request.
 			// If there is one, accept the request and return a WebSocket Response.
