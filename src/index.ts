@@ -1,7 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
+import { DefaultApi } from 'finnhub-ts';
 
 export interface Env {
 	WEBSOCKET_HIBERNATION_SERVER: DurableObjectNamespace<WebSocketHibernationServer>;
+	FINNHUB_API_KEY: string;
 }
 
 // Worker
@@ -73,6 +75,16 @@ export class WebSocketHibernationServer extends DurableObject {
 		});
 	}
 
+	async fetchStockPrice(symbol: string, apiKey: string): Promise<number | null> {
+		const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+		const response = await fetch(url);
+
+		if (!response.ok) return null;
+
+		const data = (await response.json()) as any;
+		return data.c ?? null; // 'c' is current price
+	}
+
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
 		// Upon receiving a message from the client, the server replies with the same message,
 		// and the total number of connections with the "[Durable Object]: " prefix
@@ -81,7 +93,15 @@ export class WebSocketHibernationServer extends DurableObject {
 		// 	// need free api
 		// 	ws.send('fetching stock info');
 		// }
-		ws.send('does updated repo working?');
+		const apiKey = (this.ctx.env as Env).FINNHUB_API_KEY;
+		const price = await this.fetchStockPrice('AAPL', apiKey);
+
+		if (price === null) {
+			ws.send(`[Error] Could not fetch price for apple`);
+		} else {
+			ws.send(`[Stock] apple: $${price}`);
+		}
+		// ws.send('does updated repo working?');
 		//ws.send(`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`);
 	}
 

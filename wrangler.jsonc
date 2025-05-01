@@ -27,6 +27,9 @@
 	},
 	"observability": {
 		"enabled": true
+	},
+	"vars": {
+		"FINNHUB_API_KEY": "d09npp9r01qus8realv0d09npp9r01qus8realvg"
 	}
 	/**
 	 * Smart Placement
