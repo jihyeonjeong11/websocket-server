@@ -94,7 +94,7 @@ export class WebSocketHibernationServer extends DurableObject {
 		// 	ws.send('fetching stock info');
 		// }
 		const typedEnv = env as unknown as Env;
-		const price = await this.fetchStockPrice('AAPL', typedEnv.FINNHUB_API_KEY);
+		const price = await this.fetchStockPrice(message as string, typedEnv.FINNHUB_API_KEY);
 
 		if (price === null) {
 			ws.send(`[Error] Could not fetch price for apple`);
