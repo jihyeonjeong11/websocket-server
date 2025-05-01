@@ -77,11 +77,17 @@ export class WebSocketHibernationServer extends DurableObject {
 
 	async fetchStockPrice(symbol: string, apiKey: string): Promise<number | null> {
 		const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
-		const response = await fetch(url);
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 
 		if (!response.ok) return null;
 
 		const data = (await response.json()) as any;
+		console.log(data);
 		return data.c ?? null; // 'c' is current price
 	}
 
