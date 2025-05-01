@@ -97,7 +97,7 @@ export class WebSocketHibernationServer extends DurableObject {
 		const price = await this.fetchStockPrice(message as string, typedEnv.FINNHUB_API_KEY);
 
 		if (price === null) {
-			ws.send(`[Error] Could not fetch price for apple`);
+			ws.send(`[Error] Could not fetch price for ${message}`);
 		} else {
 			ws.send(`[Stock] apple: $${price}`);
 		}
