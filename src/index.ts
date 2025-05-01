@@ -36,7 +36,13 @@ export default {
 			let id = env.WEBSOCKET_HIBERNATION_SERVER.idFromName('foo');
 			let stub = env.WEBSOCKET_HIBERNATION_SERVER.get(id);
 
-			return stub.fetch(request);
+			let response = await stub.fetch(request);
+			if (response.status !== 101) {
+				const newHeaders = new Headers(response.headers);
+				Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
+				response = new Response(response.body, { ...response, headers: newHeaders });
+			}
+			return response;
 		}
 
 		return new Response(null, {
