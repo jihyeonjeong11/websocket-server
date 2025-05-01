@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { DefaultApi } from 'finnhub-ts';
+import { env } from 'cloudflare:workers';
 
 export interface Env {
 	WEBSOCKET_HIBERNATION_SERVER: DurableObjectNamespace<WebSocketHibernationServer>;
@@ -93,8 +93,8 @@ export class WebSocketHibernationServer extends DurableObject {
 		// 	// need free api
 		// 	ws.send('fetching stock info');
 		// }
-		const apiKey = (this.ctx.env as Env).FINNHUB_API_KEY;
-		const price = await this.fetchStockPrice('AAPL', apiKey);
+		const typedEnv = env as unknown as Env;
+		const price = await this.fetchStockPrice('AAPL', typedEnv.FINNHUB_API_KEY);
 
 		if (price === null) {
 			ws.send(`[Error] Could not fetch price for apple`);
