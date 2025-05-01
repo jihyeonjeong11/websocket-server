@@ -14,12 +14,12 @@ export default {
 		};
 
 		// Handle CORS preflight request
-		if (request.method === 'OPTIONS') {
-			return new Response(null, {
-				status: 204,
-				headers: corsHeaders,
-			});
-		}
+		// if (request.method === 'OPTIONS') {
+		// 	return new Response(null, {
+		// 		status: 204,
+		// 		headers: corsHeaders,
+		// 	});
+		// }
 
 		if (request.url.endsWith('/websocket')) {
 			// Expect to receive a WebSocket Upgrade request.
@@ -36,13 +36,7 @@ export default {
 			let id = env.WEBSOCKET_HIBERNATION_SERVER.idFromName('foo');
 			let stub = env.WEBSOCKET_HIBERNATION_SERVER.get(id);
 
-			let response = await stub.fetch(request);
-			if (response.status !== 101) {
-				const newHeaders = new Headers(response.headers);
-				Object.entries(corsHeaders).forEach(([k, v]) => newHeaders.set(k, v));
-				response = new Response(response.body, { ...response, headers: newHeaders });
-			}
-			return response;
+			return stub.fetch(request);
 		}
 
 		return new Response(null, {
