@@ -88,7 +88,7 @@ export class WebSocketHibernationServer extends DurableObject {
 
 		const data = (await response.json()) as any;
 		console.log(data);
-		return data.c ?? null; // 'c' is current price
+		return data;
 	}
 
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
@@ -105,7 +105,7 @@ export class WebSocketHibernationServer extends DurableObject {
 		if (price === null) {
 			ws.send(`[Error] Could not fetch price for ${message}`);
 		} else {
-			ws.send(`[Stock] apple: $${price}`);
+			ws.send(`[Stock] apple: $${price.toString()}`);
 		}
 		// ws.send('does updated repo working?');
 		//ws.send(`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`);
