@@ -1,5 +1,4 @@
 import { DurableObject } from 'cloudflare:workers';
-import { env } from 'cloudflare:workers';
 
 export interface Env {
 	WEBSOCKET_HIBERNATION_SERVER: DurableObjectNamespace<WebSocketHibernationServer>;
@@ -53,6 +52,13 @@ export default {
 
 // Durable Object
 export class WebSocketHibernationServer extends DurableObject {
+	env: Env;
+
+	constructor(private state: DurableObjectState, env: Env) {
+		super(state, env);
+		this.env = env;
+	}
+
 	async fetch(request: Request): Promise<Response> {
 		// Creates two ends of a WebSocket connection.
 		const webSocketPair = new WebSocketPair();
@@ -87,7 +93,6 @@ export class WebSocketHibernationServer extends DurableObject {
 		if (!response.ok) return null;
 
 		const data = (await response.json()) as any;
-		console.log(data);
 		return data;
 	}
 
@@ -99,8 +104,9 @@ export class WebSocketHibernationServer extends DurableObject {
 		// 	// need free api
 		// 	ws.send('fetching stock info');
 		// }
-		const typedEnv = env as unknown as Env;
-		const price = await this.fetchStockPrice(message as string, typedEnv.FINNHUB_API_KEY);
+		console.log('this is received message', message);
+		console.log('this is derived', this.env);
+		const price = await this.fetchStockPrice(message as string, this.env.FINNHUB_API_KEY);
 
 		if (price === null) {
 			ws.send(`[Error] Could not fetch price for ${message}`);
