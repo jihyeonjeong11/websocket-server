@@ -8,6 +8,7 @@ export interface Env {
 // Worker
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		// maintain it for now,
 		// const corsHeaders = {
 		// 	'Access-Control-Allow-Origin': '*',
 		// 	'Access-Control-Allow-Methods': 'GET,HEAD,POST,OPTIONS',
@@ -93,28 +94,20 @@ export class WebSocketHibernationServer extends DurableObject {
 		if (!response.ok) return null;
 
 		const data = (await response.json()) as any;
-		return data.c ? data.c : null;
+		return data;
 	}
 
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
 		// Upon receiving a message from the client, the server replies with the same message,
 		// and the total number of connections with the "[Durable Object]: " prefix
 
-		// if (message === 'stock') {
-		// 	// need free api
-		// 	ws.send('fetching stock info');
-		// }
-		console.log('this is received message', message);
-		console.log('this is derived', this.env);
-		const price = await this.fetchStockPrice(message as string, this.env.FINNHUB_API_KEY);
+		const priceJson = await this.fetchStockPrice(message as string, this.env.FINNHUB_API_KEY);
 
-		if (price === null) {
+		if (priceJson === null) {
 			ws.send(`[Error] Could not fetch price for ${message}`);
 		} else {
-			ws.send(`[Stock] apple: ${price}`);
+			ws.send(JSON.stringify(priceJson));
 		}
-		// ws.send('does updated repo working?');
-		//ws.send(`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`);
 	}
 
 	async webSocketClose(ws: WebSocket, code: number, reason: string, wasClean: boolean) {
